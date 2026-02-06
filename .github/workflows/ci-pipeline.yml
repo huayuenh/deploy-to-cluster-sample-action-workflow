@@ -53,36 +53,16 @@ jobs:
         containerfiles: |
           ./Dockerfile
 
-    - id: ibmcloud-login
-      uses: IBM/actions-ibmcloud-cli@v1
-      name: IBMCloud CLI setup and login
+    - id: build-image
+      uses: huayuenh/ghaactions/icr@main
       with:
-        api_key: ${{ secrets.IBMCLOUD_API_KEY }}   
-        region: ${{ vars.IBMCLOUD_REGION }}
-        group: ${{ vars.RESOURCE_GROUP }}
-        plugins: container-service, container-registry
-    - name: ICR login
-      run: |
-        ibmcloud login --apikey "${IBMCLOUD_API_KEY}" -r "${IBMCLOUD_REGION}" -g ${RESOURCE_GROUP}
-        ibmcloud cr region-set "${IBMCLOUD_REGION}"
-        ibmcloud cr login
+        apikey: ${{ secrets.IBMCLOUD_API_KEY }}
+        image: "${{ steps.build-image.outputs.image }}:${{ steps.build-image.outputs.tags }}"
+        action: "push"
 
-
-   # - id: icr-login
-   #   name: Login into IBMCloud Container Registry
-   #   uses: huayuenh/ghacatalog/cr@main
-
-    - name: Push To ICR
-      id: push-to-icr
-      uses: redhat-actions/push-to-registry@v2
-      with:
-        #image: ${{ steps.build-image.outputs.image }}
-        tags: "${{ steps.build-image.outputs.image }}:${{ steps.build-image.outputs.tags }}"
-
-
-    - id: va-scan
-      name: Check VA result
-      uses: huayuenh/ghacatalog/va@main
+        sha: ${{ github.sha }}
+        target_url: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        github_repository: ${{ github.repository }}
 
     - name: Deploy to IKS
       run: |
