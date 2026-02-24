@@ -84,9 +84,7 @@ jobs:
         cluster-name: ${{ vars.CLUSTER_NAME }}
         cluster-region: ${{ vars.IBMCLOUD_REGION }}
         config-file: .deploy.yaml
-        env-vars: |
-          VERSION=${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || github.sha }}
-          BUILD_SHA=${{ github.sha }}
+        env-template: .env.template
     
     - name: Run acceptance tests
       id: acceptance-tests

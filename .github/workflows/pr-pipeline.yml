@@ -19,14 +19,6 @@ on:
   pull_request:
     types: [opened, reopened]
 
-# Environment variables available to all jobs and steps in this workflow
-env:
-  GITHUB_SHA: ${{ github.sha }}
-  IBMCLOUD_API_KEY: ${{ secrets.IBMCLOUD_API_KEY }}
-  IBMCLOUD_REGION: ${{ vars.IBMCLOUD_REGION }}
-  ICR_NAMESPACE: ${{ vars.ICR_NAMESPACE }}
-  REGISTRY_HOSTNAME: ${{ vars.ICR_REGION }}
-  IMAGE_NAME: ${{ vars.IMAGE_NAME }}
 jobs:
   pr-pipeline:
     name: Setup, Test, Build
@@ -79,20 +71,20 @@ jobs:
       uses: huayuenh/container-registry-service-action@main
       with:
         apikey: ${{ secrets.IBMCLOUD_API_KEY }}
-        image: ${{ env.REGISTRY_HOSTNAME }}/${{ env.ICR_NAMESPACE }}/${{ steps.build.outputs.image-name }}
+        image: ${{ vars.ICR_REGION }}/${{ vars.ICR_NAMESPACE }}/${{ steps.build.outputs.image-name }}
         local-image: ${{ steps.build.outputs.image-name }}
         action: push
         scan: true
-        region: ${{ env.IBMCLOUD_REGION }}
+        region: ${{ vars.IBMCLOUD_REGION }}
 
     - name: Delete PR image from registry
       if: always()
       uses: huayuenh/container-registry-service-action@main
       with:
         apikey: ${{ secrets.IBMCLOUD_API_KEY }}
-        image: ${{ env.REGISTRY_HOSTNAME }}/${{ env.ICR_NAMESPACE }}/${{ steps.build.outputs.image-name }}
+        image: ${{ vars.ICR_REGION }}/${{ vars.ICR_NAMESPACE }}/${{ steps.build.outputs.image-name }}
         action: delete
-        region: ${{ env.IBMCLOUD_REGION }}
+        region: ${{ vars.IBMCLOUD_REGION }}
       
     - name: Display build summary
       run: |
@@ -101,7 +93,7 @@ jobs:
         echo "#### Build Information" >> $GITHUB_STEP_SUMMARY
         echo "**Image Name:** \`${{ steps.build.outputs.image-name }}\`" >> $GITHUB_STEP_SUMMARY
         echo "**Image ID:** \`${{ steps.build.outputs.image-id }}\`" >> $GITHUB_STEP_SUMMARY
-        echo "**Registry:** \`${{ env.REGISTRY_HOSTNAME }}/${{ env.ICR_NAMESPACE }}/${{ steps.build.outputs.image-name }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "**Registry:** \`${{ vars.ICR_REGION }}/${{ vars.ICR_NAMESPACE }}/${{ steps.build.outputs.image-name }}\`" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "#### Pull Request Information" >> $GITHUB_STEP_SUMMARY
         echo "**PR Number:** #${{ github.event.pull_request.number }}" >> $GITHUB_STEP_SUMMARY
