@@ -124,7 +124,7 @@ jobs:
       uses: huayuenh/container-registry-service-action@main
       with:
         apikey: ${{ secrets.IBMCLOUD_API_KEY }}
-        image: ${{ env.REGISTRY_HOSTNAME }}/${{ env.ICR_NAMESPACE }}/${{ steps.build.outputs.image-name }}
+        image: ${{ env.REGISTRY_HOSTNAME }}/${{ env.ICR_NAMESPACE }}/${{ steps.app-info.outputs.image-name }}
         local-image: ${{ steps.app-info.outputs.image-name }}
         action: push
         scan: true
@@ -135,12 +135,12 @@ jobs:
       if: github.event_name != 'pull_request'
       uses: huayuenh/cluster-service-action@main
       with:
-        image: ${{ env.REGISTRY_HOSTNAME }}/${{ env.ICR_NAMESPACE }}/${{ steps.build.outputs.image-name }}
+        image: ${{ env.REGISTRY_HOSTNAME }}/${{ env.ICR_NAMESPACE }}/${{ steps.app-info.outputs.image-name }}
         cluster-type: kubernetes
         ibmcloud-apikey: ${{ secrets.IBMCLOUD_API_KEY }}
         cluster-name: ${{ env.CLUSTER_NAME }}
         cluster-region: ${{ env.IBMCLOUD_REGION }}
-        deployment-name: ${{ steps.build.outputs.app-name }}
+        deployment-name: ${{ steps.app-info.outputs.app-name }}
         namespace: ${{ env.DEPLOY_NAMESPACE }}
         port: 8080
         replicas: 3
@@ -249,9 +249,9 @@ jobs:
         echo "### Deployment Summary :rocket:" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "#### Build Information" >> $GITHUB_STEP_SUMMARY
-        echo "**Image Name:** \`${{ steps.build.outputs.image-name }}\`" >> $GITHUB_STEP_SUMMARY
-        echo "**Image ID:** \`${{ steps.build.outputs.image-id }}\`" >> $GITHUB_STEP_SUMMARY
-        echo "**Registry:** \`${{ env.REGISTRY_HOSTNAME }}/${{ env.ICR_NAMESPACE }}/${{ steps.build.outputs.image-name }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "**Image Name:** \`${{ steps.app-info.outputs.image-name }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "**Image ID:** \`${{ steps.build.outputs.imageid }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "**Registry:** \`${{ env.REGISTRY_HOSTNAME }}/${{ env.ICR_NAMESPACE }}/${{ steps.app-info.outputs.image-name }}\`" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "#### Deployment Information" >> $GITHUB_STEP_SUMMARY
         echo "**Status:** ${{ steps.deploy.outputs.deployment-status }}" >> $GITHUB_STEP_SUMMARY
